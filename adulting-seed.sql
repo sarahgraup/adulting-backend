@@ -1,13 +1,15 @@
-INSERT INTO users (username, password, first_name, last_name, email, is_admin)
+INSERT INTO users (username, password, first_name, last_name, email, bio, image_url)
 VALUES ('testuser',
         '$2b$12$AZH7virni5jlTTiGgEg4zu3lSvAw68qVEfSIOjJ3RqtbJbdW/Oi5q',
         'Test',
         'User',
-        'test@test.com'),
+        'test@test.com',
+        'test bio',
+        'testUrl.jpg'),
        ('testuser2',
         '$2b$12$AZH7virni5jlTTiGgEg4zu3lSvAw68qVEfSIOjJ3RqtbJbdW/Oi5q',
         'Test2',
         'User2!',
         'test2@test2.com',
-        'test bio',
-        'testUrl.jpeg');
+        'test2 bio',
+        'test2Url.jpg');
