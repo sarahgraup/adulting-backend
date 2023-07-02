@@ -6,7 +6,7 @@ CREATE TABLE users (
   email TEXT NOT NULL
     CHECK (position('@' IN email) > 1),
   bio TEXT,
-  image_url TEXT,
+  image_url TEXT
 );
 
 CREATE TABLE posts (
@@ -14,8 +14,7 @@ CREATE TABLE posts (
   title TEXT NOT NULL,
   username VARCHAR(25)
     REFERENCES users ON DELETE CASCADE,
-  description TEXT NOT NULL,
-  
+  description TEXT NOT NULL
 );
 
 CREATE TABLE likes (
@@ -24,7 +23,6 @@ CREATE TABLE likes (
   post_id SERIAL
     REFERENCES posts ON DELETE CASCADE,
   PRIMARY KEY (username, post_id)
-
 );
 
 CREATE TABLE dislikes (
@@ -33,7 +31,6 @@ CREATE TABLE dislikes (
   post_id SERIAL
     REFERENCES posts ON DELETE CASCADE,
   PRIMARY KEY (username, post_id)
-
 );
 
 CREATE TABLE follows (
@@ -50,5 +47,5 @@ CREATE TABLE comments (
     username VARCHAR(25) 
         REFERENCES users ON DELETE CASCADE,
     post_id SERIAL
-        REFERENCES posts ON DELETE CASCADE,
+        REFERENCES posts ON DELETE CASCADE
 );
