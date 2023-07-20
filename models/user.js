@@ -156,7 +156,7 @@ class User {
         SELECT username,
                first_name AS "firstName",
                last_name  AS "lastName",
-               email,
+               email
         FROM users
         WHERE username = $1`, [username],
     );
@@ -170,7 +170,7 @@ class User {
         FROM posts
         WHERE username = $1`, [username]);
 
-    user.posts = userPosts.rows.map(p => p.id);
+    user.posts = userPosts.rows.map(p => p.title);
     return user;
   }
 
@@ -421,3 +421,5 @@ class User {
   }
 
 }
+
+module.exports = User;

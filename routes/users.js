@@ -11,7 +11,7 @@ const {
 } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
 const User = require("../models/user");
-const userUpdateSchema = require("../../schemas/userUpdate.json");
+const userUpdateSchema = require("../schemas/userUpdate.json");
 
 const router = express.Router();
 
@@ -41,6 +41,8 @@ const router = express.Router();
 router.get("/:username",
     ensureLoggedIn,
     async function (req, res, next) {
+        console.log("user?");
+        console.log(req.params.username);
         const user = await User.get(req.params.username);
         return res.json({ user });
     });

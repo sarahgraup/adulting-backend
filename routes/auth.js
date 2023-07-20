@@ -19,7 +19,7 @@ const { BadRequestError } = require("../expressError");
  * Authorization required: none
  */
 
-router.post("/token", async function (req, res, next) {
+router.post("/login", async function (req, res, next) {
   const validator = jsonschema.validate(
     req.body,
     userAuthSchema,
@@ -56,6 +56,7 @@ router.post("/register", async function (req, res, next) {
     const errs = validator.errors.map(e => e.stack);
     throw new BadRequestError(errs);
   }
+  console.log("do we get here");
 
   const newUser = await User.register({ ...req.body});
   const token = createToken(newUser);
