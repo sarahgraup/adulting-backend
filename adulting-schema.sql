@@ -14,7 +14,9 @@ CREATE TABLE posts (
   title TEXT NOT NULL,
   username VARCHAR(25)
     REFERENCES users ON DELETE CASCADE,
-  description TEXT NOT NULL
+  description TEXT NOT NULL,
+  type TEXT NOT NULL,
+  date TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 CREATE TABLE likes (

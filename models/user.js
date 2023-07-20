@@ -129,4 +129,235 @@ class User {
     return user;
   }
 
+  //get their posts, likes, dislikes, follows, followers, comments
+  /** Return posts from this user.
+   *
+   * [{id, username, title, description, date}]
+   *
+   * where user is
+   *   {username, first_name, last_name, email}
+   */
+
+  static async userPosts(username) {
+    const results = await db.query(
+      `SELECT p.id,
+      p.username,
+      p.title,
+      p.type,
+      p.description,
+      p.date,
+      u.username,
+      u.first_name,
+      u.last_name,
+      u.email
+      FROM posts AS p
+      JOIN users AS u
+      ON p.username = u.username
+      WHERE p.username = $1`,
+      [username]
+    );
+
+    return results.rows.map(r => r = {
+      id: r.id,
+      title: r.title,
+      description: r.description,
+      date: r.date,
+      user: {
+        first_name: r.first_name,
+        last_name: r.last_name,
+        username: r.username,
+        email: r.email
+      },
+
+    });
+
+  }
+
+  /** Return likes from this user.
+   *
+   * [{id, username, title, description, date}]
+   *
+   * where post_creator_user is
+   *   {username, first_name, last_name, email}
+   */
+
+  static async userLikes(username) {
+
+    const results = await db.query(
+      `SELECT l.post_id,
+      l.username AS post_creator_username,
+      p.id,
+      p.username,
+      p.title,
+      p.type,
+      p.description,
+      p.date,
+      u.username,
+      u.first_name,
+      u.last_name,
+      u.email
+      FROM likes AS l
+      JOIN posts AS p
+      ON l.post_id = p.id
+      JOIN users AS u
+      ON l.username = u.username
+      WHERE l.username = $1`,
+      [username]
+    );
+
+    return results.rows.map(r => ({
+      id: r.id,
+      username: r.post_creator_username,
+      title: r.title,
+      description: r.description,
+      date: r.date,
+      user: {
+        username: r.post_creator_username,
+        first_name: r.first_name,
+        last_name: r.last_name,
+        email: r.email
+      }
+    }));
+
+  }
+
+   /** Return dislikes from this user.
+   *
+   * [{id, username, title, description, date}]
+   *
+   * where post_creator_user is
+   *   {username, first_name, last_name, email}
+   */
+
+  static async userDislikes(username) {
+
+    const results = await db.query(
+      `SELECT d.post_id,
+      d.username AS post_creator_username,
+      p.id,
+      p.username,
+      p.title,
+      p.description,
+      p.date,
+      u.username,
+      u.first_name,
+      u.last_name,
+      u.email
+      FROM dislikes AS d
+      JOIN posts AS p
+      ON l.post_id = p.id
+      JOIN users AS u
+      ON l.username = u.username
+      WHERE l.username = $1`,
+      [username]
+    );
+
+    return results.rows.map(r => ({
+      id: r.id,
+      username: r.post_creator_username,
+      title: r.title,
+      description: r.description,
+      date: r.date,
+      user: {
+        username: r.post_creator_username,
+        first_name: r.first_name,
+        last_name: r.last_name,
+        email: r.email
+      }
+    }));
+
+  }
+
+  /** Return frequent post types from this user.
+   *
+   * returns {type}
+   */
+
+  static async getFrequentPostTypes(username) {
+    const results = await db.query(
+      `SELECT type
+       FROM posts
+       WHERE username = $1
+       GROUP BY type
+       ORDER BY COUNT(*) DESC`,
+      [username]
+    );
+
+    return results.rows.map(r => r.type);
+  }
+
+  /** Returns users followers
+  *
+  * Returns follower
+  *
+  **/
+  static async getFollowers(username) {
+    const results = await db.query(
+      `SELECT user_following_id AS follower
+       FROM follows
+       WHERE user_being_followed_id = $1`,
+      [username]
+    );
+
+    return results.rows.map(r => r.follower);
+  }
+  /** Returns users followings
+  *
+  * Returns following
+  *
+  **/
+  static async getFollowing(username) {
+    const results = await db.query(
+      `SELECT user_being_followed_id AS following
+       FROM follows
+       WHERE user_following_id = $1`,
+      [username]
+    );
+
+    return results.rows.map(r => r.following);
+  }
+
+  /**Adds follower
+   * returns user_following_id and user_being_followed_id
+   * 
+   * Throws NotFoundError is user not found 
+   */
+  static async addFollow(userFollowingId, userBeingFollowedId) {
+    const result = await db.query(
+      `INSERT INTO follows(user_following_id, user_being_followed_id)
+       VALUES ($1, $2)
+       RETURNING user_following_id, user_being_followed_id`,
+      [userFollowingId, userBeingFollowedId]
+    );
+
+    const follow = result.rows[0];
+    if (!follow) {
+      throw new NotFoundError(`No such user: ${userBeingFollowedId}`);
+    }
+
+    return result.rows[0];
+  }
+
+   /**Removes follower
+   * returns user_following_id and user_being_followed_id
+   * 
+   * Throws NotFoundError is user not found 
+   */
+  static async removeFollow(userFollowingId, userBeingFollowedId) {
+    const result = await db.query(
+      `DELETE FROM follows
+       WHERE user_following_id = $1 AND user_being_followed_id = $2
+       RETURNING user_following_id, user_being_followed_id`,
+      [userFollowingId, userBeingFollowedId]
+    );
+
+    const removeFollow = result.rows[0];
+    if (!removeFollow) {
+      throw new NotFoundError(`No such user: ${userBeingFollowedId}`);
+    }
+
+
+    return result.rows[0];
+  }
+
 }
